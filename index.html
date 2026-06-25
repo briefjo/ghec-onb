@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitHub Enterprise Onboarding Portal — 30-Day Setup Checklist</title>
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gh-bg:        #ffffff;
+      --gh-surface:   #ffffff;
+      --gh-border:    #e1e4e8;
+      --gh-text:      #1f2328;
+      --gh-muted:     #57606a;
+      --gh-link:      #0969da;
+      --gh-green:     #08872B;
+      --gh-green-btn: #0FBF3E;
+      --gh-green-light: #dafbe1;
+      --gh-tip-bg:    #F2F5F3;
+      --radius:       6px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background: var(--gh-bg);
+      color: var(--gh-text);
+      font-family: var(--font);
+      font-size: 16px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    a { color: var(--gh-link); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Centered container ── */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      padding: 24px 24px 16px;
+    }
+
+    header .logo {
+      width: 70px;
+      height: auto;
+      margin-bottom: 16px;
+    }
+
+    header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      line-height: 1.3;
+      color: var(--gh-text);
+    }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--gh-border);
+      margin: 0 0 24px;
+    }
+
+    /* ── Progress bar ── */
+    .progress-section {
+      padding: 16px 0 24px;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+
+    .progress-header .label { font-weight: 600; font-size: 14px; }
+    .progress-header .count { font-size: 13px; color: var(--gh-muted); }
+
+    .progress-bar-track {
+      background: var(--gh-border);
+      border-radius: 99px;
+      height: 8px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: var(--gh-green-btn);
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+
+    .reset-btn {
+      display: block;
+      margin: 12px auto 0;
+      font-size: 12px;
+      font-family: var(--font);
+      color: var(--gh-muted);
+      background: transparent;
+      border: 1px solid var(--gh-border);
+      border-radius: var(--radius);
+      padding: 5px 14px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .reset-btn:hover { border-color: var(--gh-muted); color: var(--gh-text); }
+
+    /* ── Week card ── */
+    .week-card {
+      border: 8px solid var(--gh-green);
+      border-radius: var(--radius);
+      margin-bottom: 24px;
+      overflow: hidden;
+      background: var(--gh-surface);
+    }
+
+    .week-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 30px 14px;
+    }
+
+    .week-badge {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 99px;
+      white-space: nowrap;
+      background: var(--gh-green-light);
+      color: var(--gh-green);
+    }
+
+    .week-title-group { flex: 1; }
+    .week-title { font-size: 16px; font-weight: 600; }
+    .week-days  { font-size: 12px; color: var(--gh-muted); margin-top: 1px; }
+
+    .week-progress-mini {
+      font-size: 12px;
+      color: var(--gh-muted);
+      text-align: right;
+      white-space: nowrap;
+    }
+    .week-progress-mini strong { color: var(--gh-text); }
+
+    /* ── Task rows ── */
+    .tasks-list { list-style: none; }
+
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 30px;
+      border-bottom: 1px solid var(--gh-border);
+      transition: background 0.15s;
+    }
+    .task-item:last-child { border-bottom: none; }
+    .task-item:hover { background: rgba(0,0,0,0.015); }
+
+    .task-item.done .task-main { opacity: 0.5; }
+    .task-item.done .task-name { text-decoration: line-through; }
+
+    .task-checkbox {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 17px; height: 17px;
+      border: 2px solid var(--gh-border);
+      border-radius: 4px;
+      background: var(--gh-bg);
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: 2px;
+      position: relative;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .task-checkbox:checked {
+      background: var(--gh-green-btn);
+      border-color: var(--gh-green-btn);
+    }
+    .task-checkbox:checked::after {
+      content: '';
+      position: absolute;
+      left: 3px; top: 0px;
+      width: 6px; height: 10px;
+      border: 2px solid #fff;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg);
+    }
+    .task-checkbox:focus-visible { outline: 2px solid var(--gh-link); outline-offset: 2px; }
+
+    .task-main { flex: 1; min-width: 0; }
+    .task-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+    .task-desc { font-size: 13px; color: var(--gh-muted); }
+    .task-desc .link-row { margin-top: 6px; }
+
+    .task-desc .link-row a {
+      font-size: inherit; /* matches .task-desc (13px) */
+      color: var(--gh-link);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding-bottom: 5px;
+    }
+
+    .task-desc .link-row a::before { content: '→'; }
+
+    .task-desc .link-row .tip-box a::before { content: none; }
+
+    .task-desc .link-row .tip-box {
+      display: block;
+      margin-top: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      color: var(--gh-text);
+      line-height: 1.5;
+      background: var(--gh-tip-bg);
+      border: none;
+      outline: none;
+      border-radius: var(--radius);
+    }
+
+    .task-desc .link-row .tip-box strong {
+      font-weight: 600;
+    }
+
+    /* ── Milestone banner ── */
+    .milestone-banner {
+      margin: 14px 30px 20px;
+      background: none;
+      border-radius: var(--radius);
+      padding: 4px 14px 12px; /* was 6px 14px 12px */
+      font-size: 13px;
+      color: var(--gh-text);
+      display: block; /* was flex */
+    }
+
+    .milestone-banner::before {
+      content: '';
+      display: block;
+      width: 100%;                 /* was 40% */
+      height: 1px;                 /* match checklist divider thickness */
+      background: var(--gh-border);/* light gray */
+      margin: 0 0 14px;            /* match checklist item spacing rhythm */
+      border-radius: 0;            /* optional: cleaner for 1px line */
+    }
+
+    /* remove icon styling entirely */
+    .milestone-banner .mi-icon { display: none; }
+
+    .milestone-banner .mi-text strong {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 2px;
+      color: #08872B;
+    }
+
+    .milestone-banner .mi-text span {
+      color: inherit; /* auto black via parent color */
+      font-size: 12px;
+    }
+
+    /* ── All-done message ── */
+    #all-done {
+      display: none;
+      text-align: center;
+      padding: 40px 20px;
+      border: 2px dashed var(--gh-green-btn);
+      border-radius: var(--radius);
+      background: var(--gh-green-light);
+      margin-top: 8px;
+    }
+    #all-done h2 { color: var(--gh-green); font-size: 22px; margin-bottom: 8px; }
+    #all-done p  { color: var(--gh-muted); font-size: 14px; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 24px 0;
+      font-size: 12px;
+      color: var(--gh-muted);
+      line-height: 1.4;
+    }
+    footer .footer-links {
+      margin-bottom: 12px;
+    }
+    footer .footer-links a {
+      color: var(--gh-link);
+      text-decoration: none;
+    }
+    footer .footer-links a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- ════════════════  HEADER  ════════════════ -->
+<header>
+  <img class="logo"
+    src="https://d15k2d11r6t6rl.cloudfront.net/pub/hmd2/fnngtanu/0n7/gl8/f2j/mark-github-24.png"
+    alt="GitHub Logo" />
+  <h1>Onboarding Checklist: GitHub Enterprise</h1>
+</header>
+
+<hr class="divider" />
+
+<!-- ════════════════  MAIN  ════════════════ -->
+<main>
+
+  <!-- Overall progress bar -->
+  <div class="progress-section">
+    <div class="progress-header">
+      <span class="label">Overall Progress</span>
+      <span class="count" id="overall-count">0 / 12 tasks completed</span>
+    </div>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="overall-bar"></div>
+    </div>
+    <button class="reset-btn" id="reset-btn" type="button">Reset progress</button>
+  </div>
+
+  <!-- ── WEEK 1 ── -->
+  <div class="week-card">
+    <div class="week-header">
+      <span class="week-badge">Week 1</span>
+      <div class="week-title-group">
+        <div class="week-title">Set Your Foundation</div>
+        <div class="week-days">Lay the groundwork so GitHub Enterprise works smoothly from day one</div>
+      </div>
+      <div class="week-progress-mini" id="w1-count"><strong>0</strong> / 3</div>
+    </div>
+
+    <ul class="tasks-list" id="w1-tasks">
+
+      <li class="task-item" data-week="1">
+        <input class="task-checkbox" type="checkbox" aria-label="Define your enterprise success metrics and goals" />
+        <div class="task-main">
+          <div class="task-name">Define your enterprise success metrics and goals</div>
+          <div class="task-desc">
+            Before configuring anything, establish what good looks like for your org.
+            <div class="link-row" data-tip="Reference the GitHub Engineering System Success Playbook to help you drive better outcomes.">
+              <a href="https://support.github.com/product-guides/github-enterprise/get-started/design-github-enterprise-platform-roi-and-check-the-initial-metrics" target="_blank" rel="noopener">
+                <strong>Set your KPIs </strong>
+              </a>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <li class="task-item" data-week="1">
+        <input class="task-checkbox" type="checkbox" aria-label="Design your organization and team structure" />
+        <div class="task-main">
+          <div class="task-name">Design your organization and team structure</div>
+          <div class="task-desc">
+            Map how orgs, teams, and roles connect to your development topology.
+            <div class="link-row" data-tip="For best practice for organizing work in your enterprise, visit GitHub Docs.">
+              <a href="https://support.github.com/product-guides/github-enterprise/get-started/decide-on-your-organization-team-structure"
+                 target="_blank" rel="noopener">
+                <strong>Provision access</strong>
+              </a>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <li class="task-item" data-week="1">
+        <input class="task-checkbox" type="checkbox" aria-label="Complete your enterprise account setup" />
+        <div class="task-main">
+          <div class="task-name">Complete your enterprise account setup</div>
+          <div class="task-desc">
+            Configure enterprise-level policies, connect billing, register support entitlements, and finish your IAM configuration.
+            <div class="link-row" data-tip="Consider establishing cost centers, budgets, and alerts for usage-based services when <a href='https://support.github.com/product-guides/github-enterprise/get-started/setup-billing' target='_blank' rel='noopener'>setting up billing</a>.">
+              <a href="https://support.github.com/product-guides/github-enterprise/get-started/configure-enterprise-settings-and-policies"
+                 target="_blank" rel="noopener">
+                <strong>Establish your enterprise</strong>
+              </a>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <li class="task-item" data-week="1">
+        <input class="task-checkbox" type="checkbox" aria-label="Plan and execute your pilot migration" />
+        <div class="task-main">
+          <div class="task-name">Plan and execute your pilot migration</div>
+          <div class="task-desc">
+            Select and migrate pilot teams or repositories to GitHub.
+            <div class="link-row" data-tip="Your first migration wave should include approximately 10% of repositories.">
+              <a href="https://support.github.com/product-guides/github-enterprise/get-started/planning-your-migration-to-github"
+                 target="_blank" rel="noopener">
+                <strong>Plan your migration</strong>
+              </a>
+            </div>
+          </div>
+        </div>
+      </li>
+
+    </ul>
+
+    <div class="milestone-banner">
+      <div class="mi-text">
+        <strong>Steps completed? Here's the exec recap:</strong>
+        <span>GitHub Enterprise has been fully configured and is ready to roll out.</span>
+      </div>
+    </div>
+  </div><!-- /week 1 -->
+
+
+  <!-- ── WEEK 2 ── -->
+  <div class="week-card">
+    <div class="week-header">
+      <span class="week-badge">Week 2</span>
+      <div class="week-title-group">
+        <div class="week-title">Get Your Team Onboard</div>
+        <div class="week-days">Start small, learn quickly, and build early momentum</div>
+      </div>
+      <div class="week-progress-mini" id="w2-count"><strong>0</strong> / 3</div>
+    </div>
+
+    <ul class="tasks-list" id="w2-tasks">
+
+      <li class="task-item" data-week="2">
+        <input class="task-checkbox" type="checkbox" aria-label="Enroll in admin learning" />
+        <div class="task-main">
+          <div class="task-name">Enroll in admin learning</div>
+          <div class="task-desc">
+            Admins should complete the GitHub Administration Learning Path to build platform confidence.
+            <div class="link-row" data-tip="Resources like GitHub Skills and Learning Lab also let you practice your know-how with interactive exercises.">
+              <a href="https://support.github.com/product-guides/github-enterprise/get-started/administrator-learning-path-for-github-enterprise"
+                 target="_blank" rel="noopener">
+                <strong>Start learning</strong>
+              </a>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <li class="task-item" data-week="2">
+        <input class="task-checkbox" type="checkbox" aria-label="Establish developer onboarding and training paths" />
+        <div class="task-main">
+          <div class="task-name">Establish developer onboarding and training paths</div>
+          <div class="task-desc">
+            Provide role-specific training so developers can self-serve from day one.
+            <div class="link-row" data-tip="Our <a href='https://learn.github.com/learning/introductiontoGitHub' target='_blank' rel='noopener'>Introduction to GitHub</a> course is great for beginners (and free).">
+              <a href="https://support.github.com/product-guides/github-enterprise/get-started/developer-learning-training-for-github"
+                 target="_blank" rel="noopener">
+                <strong>Empower your teams</strong>
+              </a>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <li class="task-item" data-week="2">
+        <input class="task-checkbox" type="checkbox" aria-label="Stand up a community hub" />
+        <div class="task-main">
+          <div class="task-name">Stand up a community hub</div>
+          <div class="task-desc">
+            Identify champions to lead an internal space where developers can ask questions and crowdsource help.
+            <div class="link-row" data-tip="The most effective champions are often individual contributors who are enthusiastic about the technology.">
+              <a href="https://support.github.com/product-guides/github-enterprise/accelerate-usage/creating-a-community-to-engage-developers"
+                 target="_blank" rel="noopener">
+                <strong>Build community</strong>
+              </a>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <li class="task-item" data-week="2">
+        <input class="task-checkbox" type="checkbox" aria-label="Activate pilot teams with hands-on GitHub workflows" />
+        <div class="task-main">
+          <div class="task-name">Activate pilot teams with hands-on GitHub workflows</div>
+          <div class="task-desc">
+            Have champions lead the pilot team through their first issues and pull requests to build familiarity before the broader rollout.
+            <div class="link-row" data-tip="Maintainers can add templates in repos to help contributors create high-quality issues and pull requests.">
+              <a href="https://support.github.com/product-guides/github-enterprise/get-started/pull-requests-and-collaborative-development"
+                 target="_blank" rel="noopener">
+                <strong>Practice real workflows</strong>
+              </a>
+            </div>
+          </div>
+        </div>
+      </li>
+
+    </ul>
+
+    <div class="milestone-banner">
+      <div class="mi-text">
+        <strong>Steps completed? Here's the exec recap:</strong>
+        <span>GitHub Enterprise is now live with our initial pilot group, allowing us to validate setup and gather early feedback ahead of broader rollout.</span>
+      </div>
+    </div>
+  </div><!-- /week 2 -->
+
+
+  <!-- ── WEEK 3 ── -->
+  <div class="week-card">
+    <div class="week-header">
+      <span class="week-badge">Week 3</span>
+      <div class="week-title-group">
+        <div class="week-title">Build Adoption</div>
+        <div class="week-days">Turn early usage into consistent, meaningful habits</div>
+      </div>
+      <div class="week-progress-mini" id="w3-count"><strong>0</strong> / 3</div>
+    </div>
+
+    <ul class="tasks-list" id="w3-tasks">
+
+      <li class="task-item" data-week="3">
+        <input class="task-checkbox" type="checkbox" aria-label="Implement repository rulesets and enterprise-level policies" />
+        <div class="task-main">
+          <div class="task-name">Implement repository rulesets and enterprise-level policies</div>
+          <div class="task-desc">
+            Replace manual per-repo configuration with centrally managed rulesets to bring consistency to branching and merge requirements.
+            <div class="link-row" data-tip="Bypass of rulesets should not be allowed under the Repository Ruleset configuration.">
+              <a href="https://docs.github.com/en/enterprise-cloud@latest/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets"
+                 target="_blank" rel="noopener">
+                <strong>Create rulesets</strong>
+              </a>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <li class="task-item" data-week="3">
+        <input class="task-checkbox" type="checkbox" aria-label="Automate repository provisioning" />
+        <div class="task-main">
+          <div class="task-name">Automate repository provisioning</div>
+          <div class="task-desc">
+            Use repository templates and custom properties so new repos are created with built-in standards as the enterprise scales.
+            <div class="link-row" data-tip="Avoid creating too many properties initially. Start with the essentials and expand based on proven value.">
+              <a href="https://support.github.com/product-guides/github-enterprise/accelerate-usage/building-blocks-for-scaled-governance"
+                 target="_blank" rel="noopener">
+                <strong>Implement governance</strong>
+              </a>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <li class="task-item" data-week="3">
+        <input class="task-checkbox" type="checkbox" aria-label="Configure audit log streaming" />
+        <div class="task-main">
+          <div class="task-name">Configure audit log streaming</div>
+          <div class="task-desc">
+            Set up streaming to your SIEM or data platform so compliance and security teams have continuous, queryable access to enterprise activity.
+            <div class="link-row" data-tip="Remember to pause the stream to perform maintenance on the receiving application without losing audit data.">
+              <a href="https://docs.github.com/enterprise-cloud@latest/admin/monitoring-activity-in-your-enterprise/reviewing-audit-logs-for-your-enterprise/streaming-the-audit-log-for-your-enterprise"
+                 target="_blank" rel="noopener">
+                <strong>Start streaming</strong>
+              </a>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <li class="task-item" data-week="3">
+        <input class="task-checkbox" type="checkbox" aria-label="Adopt pull request review standards" />
+        <div class="task-main">
+          <div class="task-name">Adopt pull request review standards</div>
+          <div class="task-desc">
+            Define who reviews what, what checks must pass, and how teams collaborate on code changes. PR workflow maturity is a strong signal of platform depth.
+            <div class="link-row" data-tip="Ensure all team members understand the review process and adhere to the defined standards.">
+              <a href="https://support.github.com/product-guides/github-enterprise/accelerate-usage/pull-request-reviews-and-management-strategy"
+                 target="_blank" rel="noopener">
+                <strong>Define collaboration</strong>
+              </a>
+            </div>
+          </div>
+        </div>
+      </li>
+
+    </ul>
+
+    <div class="milestone-banner">
+      <div class="mi-text">
+        <strong>Steps completed? Here's the exec recap:</strong>
+        <span>GitHub Enterprise adoption is building momentum, with developers using it in daily workflows and expanding into more advanced use cases.</span>
+      </div>
+    </div>
+  </div><!-- /week 3 -->
+
+
+  <!-- ── WEEK 4 ── -->
+  <div class="week-card">
+    <div class="week-header">
+      <span class="week-badge">Week 4</span>
+      <div class="week-title-group">
+        <div class="week-title">Measure & Scale</div>
+        <div class="week-days">Understand what's working and grow with confidence</div>
+      </div>
+      <div class="week-progress-mini" id="w4-count"><strong>0</strong> / 3</div>
+    </div>
+
+    <ul class="tasks-list" id="w4-tasks">
+
+      <li class="task-item" data-week="4">
+        <input class="task-checkbox" type="checkbox" aria-label="Debrief the pilot and capture learnings" />
+        <div class="task-main">
+          <div class="task-name">Debrief the pilot and capture learnings</div>
+          <div class="task-desc">
+            Before expanding, gather structured feedback from champions and users. Run a short retrospective prior to every subsequent rollout wave.
+            <div class="link-row" data-tip="<i>Qualitative</i> signals (what confused developers, what hindered use) are often more actionable than quantitative ones at Day 30.">
+              <a href="https://support.github.com/product-guides/github-enterprise/get-started/design-github-enterprise-platform-roi-and-check-the-initial-metrics"
+                 target="_blank" rel="noopener">
+                <strong>View your metrics</strong>
+              </a>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <li class="task-item" data-week="4">
+        <input class="task-checkbox" type="checkbox" aria-label="Identify and onboard the next team cohort" />
+        <div class="task-main">
+          <div class="task-name">Identify and onboard the next team cohort</div>
+          <div class="task-desc">
+            You created a repeatable process with the pilot and then laid the governance foundation in Week 3. Apply both to bring the next wave of teams onto GitHub faster. Use the runbooks, repository templates, and rulesets already in place.
+            <div class="link-row" data-tip="Keep the ask short. Quick surveys or team check-ins work well.">
+              <a href="https://support.github.com/product-guides/github-enterprise/accelerate-usage/accelerate-migrations-to-github"
+                 target="_blank" rel="noopener">
+                <strong>Grow your team</strong>
+              </a>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <li class="task-item" data-week="4">
+        <input class="task-checkbox" type="checkbox" aria-label="Share early wins to build internal advocacy" />
+        <div class="task-main">
+          <div class="task-name">Share early wins to build internal advocacy</div>
+          <div class="task-desc">
+            Document and present what the pilot teams accomplished with the community hub and leadership; rallying around migrations completed, first PRs merged, and developer feedback builds momentum.
+            <div class="link-row" data-tip="Double down on teams and use cases where Copilot is already gaining traction.">
+              <a href="https://support.github.com/product-guides/github-enterprise/succeed-long-term/publish-case-studies-to-spread-the-word-about-the-excellence-of-your-developer-experience"
+                 target="_blank" rel="noopener">
+                <strong>Publish case studies</strong>
+              </a>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <li class="task-item" data-week="4">
+        <input class="task-checkbox" type="checkbox" aria-label="Set targets for the next 30 days using adoption signals" />
+        <div class="task-main">
+          <div class="task-name">Set targets for the next 30 days using adoption signals</div>
+          <div class="task-desc">
+            Review signals like seat activation, PR activity, and community discussion volume to monitor progress and inform defining specific expansion targets for the next period.
+            <div class="link-row" data-tip="Use the ESSP four-zone model (Business Outcomes, Quality, Velocity, Developer Happiness) to interpret available data.">
+              <a href="https://support.github.com/product-guides/github-enterprise/succeed-long-term/track-the-adoption-rates-and-devex-metrics-to-measure-results-from-numbers"
+                 target="_blank" rel="noopener">
+                <strong>Track adoption</strong>
+              </a>
+            </div>
+          </div>
+        </div>
+      </li>
+
+    </ul>
+
+    <div class="milestone-banner">
+      <div class="mi-text">
+        <strong>Steps completed? Here's the exec recap:</strong>
+        <span>GitHub Enterprise is delivering measurable value, and we are scaling adoption across additional teams based on early success.</span>
+      </div>
+    </div>
+  </div><!-- /week 4 -->
+
+  <!-- All done banner -->
+  <div id="all-done" role="status">
+    <h2>🎉 Congratulations!</h2>
+    <p>You've completed the 30-Day GitHub EnterpriseSetup Checklist.<br>
+    Your organization is on its way to a safer, more productive development environment!</p>
+  </div>
+
+</main>
+
+<hr class="divider" />
+
+<!-- ════════════════  FOOTER  ════════════════ -->
+<footer>
+  <div class="footer-links">
+    <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">Privacy Policy</a>
+    &nbsp;|&nbsp;
+    <a href="https://docs.github.com/en/site-policy/github-terms/github-terms-of-service">Terms of Service</a>
+    &nbsp;|&nbsp;
+    <a href="https://support.github.com/">Support Portal</a>
+  </div>
+  &copy; 2026 GitHub, Inc. All rights reserved.<br />
+  GitHub, Inc.<br />
+  88 Colin P Kelly Jr St.<br />
+  San Francisco, CA 94107
+</footer>
+
+</div><!-- /.container -->
+
+<script>
+  (function() {
+    'use strict';
+
+    /* ── Unique visitor ID ── */
+    function getVisitorId() {
+      var params = new URLSearchParams(window.location.search);
+      var id = params.get('id');
+      if (!id) {
+        id = crypto.randomUUID ? crypto.randomUUID() :
+          'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0;
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+          });
+        params.set('id', id);
+        history.replaceState(null, '', '?' + params.toString());
+      }
+      return id;
+    }
+
+    var visitorId   = getVisitorId();
+    var STORAGE_KEY = 'ghas-checklist-' + visitorId;
+    var checkboxes  = Array.from(document.querySelectorAll('.task-checkbox'));
+    var TOTAL       = checkboxes.length;
+
+    /* ── Persist & restore ── */
+    function save() {
+      var state = checkboxes.map(function(cb) { return cb.checked; });
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) { /* storage full or unavailable */ }
+    }
+
+    function load() {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        var state = JSON.parse(raw);
+        checkboxes.forEach(function(cb, i) {
+          if (state[i]) { cb.checked = true; }
+        });
+      } catch (e) { /* ignore corrupt data */ }
+    }
+
+    /* ── UI update ── */
+    function update() {
+      var total = 0;
+      [1, 2, 3, 4].forEach(function(w) {
+        var items = document.querySelectorAll('.task-item[data-week="' + w + '"]');
+        var done = 0;
+        items.forEach(function(li) {
+          var cb = li.querySelector('.task-checkbox');
+          if (cb.checked) { done++; total++; li.classList.add('done'); }
+          else            { li.classList.remove('done'); }
+        });
+        var countEl = document.getElementById('w' + w + '-count');
+        countEl.innerHTML = '<strong>' + done + '</strong> / ' + items.length;
+      });
+
+      var pct = Math.round((total / TOTAL) * 100);
+      document.getElementById('overall-bar').style.width = pct + '%';
+      document.getElementById('overall-count').textContent =
+        total + ' / ' + TOTAL + ' tasks completed';
+
+      document.getElementById('all-done').style.display =
+        total === TOTAL ? 'block' : 'none';
+    }
+
+    /* ── Reset handler ── */
+    document.getElementById('reset-btn').addEventListener('click', function() {
+      checkboxes.forEach(function(cb) { cb.checked = false; });
+      try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+      save();
+      update();
+    });
+
+    /* ── Wire up checkbox events ── */
+    checkboxes.forEach(function(cb) {
+      cb.addEventListener('change', function() { save(); update(); });
+    });
+
+    function renderTips() {
+      var rows = Array.from(document.querySelectorAll('.task-desc .link-row[data-tip]'));
+      rows.forEach(function(row) {
+        if (row.querySelector('.tip-box')) return;
+        var text = row.getAttribute('data-tip');
+        if (!text) return;
+
+        var box = document.createElement('div');
+        box.className = 'tip-box';
+
+        var label = document.createElement('strong');
+        label.textContent = '💡 Tip:';
+        box.appendChild(label);
+        var span = document.createElement('span');
+        span.innerHTML = ' ' + text;
+        box.appendChild(span);
+
+        row.appendChild(box);
+      });
+    }
+
+    /* ── Init ── */
+    renderTips();
+    load();
+    update();
+  })();
+</script>
+</body>
+</html>
